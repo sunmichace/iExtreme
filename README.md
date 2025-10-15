@@ -64,7 +64,6 @@ iExtreme/
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-repo/iExtreme.git
    cd iExtreme
    ```
 
@@ -104,26 +103,6 @@ iExtreme/
 3. **Interpret Results**:
    - **Prediction Scores**: Probability scores for each extremophile type
    - **Visualization**: Interactive charts showing temperature, salinity, and pH predictions
-
-### API Usage
-
-The system provides a RESTful API for programmatic access:
-
-```python
-import requests
-
-# Submit prediction request
-response = requests.post('/iExtreme_pred', {
-    'req_type': 'submit',
-    'user_hash': 'your_upload_hash'
-})
-
-# Check prediction status
-response = requests.post('/iExtreme_pred', {
-    'req_type': 'ask',
-    'order_id': response.json()['order_id']
-})
-```
 
 ## Technical Details
 
