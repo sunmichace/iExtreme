@@ -141,17 +141,6 @@ iExtreme/
 - **Visualization Data**: Arrays for chart rendering
 - **Results Summary**: Comprehensive prediction report
 
-## Server Configuration
-
-### Task Queue Management
-- **Daily Limit**: 100 requests per day
-- **Concurrent Processing**: Asynchronous task handling
-- **Status Tracking**: Real-time progress monitoring
-
-### API Endpoints
-- `/iExtreme_pred` - Main prediction API
-- `/php/iExtreme_upload.php` - File upload handler
-
 ## Research Applications
 
 Using iExtreme, researchers have:
