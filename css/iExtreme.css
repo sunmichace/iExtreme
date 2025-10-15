@@ -1,0 +1,121 @@
+#btn-upload:hover, #btn-pred:hover{
+    opacity: 0.7;
+    transform: scale(1.2,1.2);
+}
+.contain{
+    /* position:absolute; */
+    width: 99%;
+    height:99%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items: center;
+    border:1px solid white;
+    overflow: scroll-y;
+}
+.head{
+    width: 99%;
+    /*background-color: antiquewhite;*/
+}
+/* .head>div#logo{
+    width:180px;
+    height: 132px;
+    border: 1px solid black;
+    background-image: url("logo.png");
+    background-repeat: no-repeat;
+    background-size: 90%;
+} */
+.body{
+    display:flex;
+    /* position:relative; */
+    /* top:-100px; */
+    width: 100%;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    border:1px solid white;
+}
+#intro{
+    font-size: 28px;
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+h1#model_name{
+    font-size: 100px;
+    font-family:'Times New Roman', Times, serif;
+}
+.highlight{
+    color: #079C2A;
+font-size: 30px;
+}
+div#input_frame{
+    width:90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+div#input_frame>div#input{
+    width:70%;
+    display: flex;
+    padding: 10px;
+    margin:10px;
+    flex-direction: column;
+    background-color: white;
+    justify-content: left;
+    align-items:left;
+    outline: none;
+    border-radius: 50px;
+    box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.6);
+    border:1px solid white;
+}
+.search_ico{
+    width: 40px;
+    height: 40px;
+}
+.search_ico:hover{
+    transform: scale(1.05, 1.05);
+}
+.search_ico:active{
+    transform: scale(0.95, 0.95);
+}
+div#input_frame>div>input{
+    /* width:100%; */
+    /* height:40px; */
+    /* display: flex;
+    flex-direction: row; */
+    /* border-radius: 18px;
+    border:0.1px solid white; */
+    outline: none;
+    text-indent: 10px;
+    font-size: 28px;
+    font-family: 'Times New Roman', Times, serif;
+}
+#results{
+height: 40px;
+    font-size: 25px;
+    position: relative;
+    top:20px;
+    justify-content: space-between;
+    background-color: white;
+}
+.waitdot{
+    width: 20px;
+    height: 20px;
+    background-color: #079C2A;
+    border-radius: 50%;
+    animation: change_waitdot_color 5s infinite;
+}
+.foot{
+    /* height:5%; */
+    width: 99%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    color:white;
+}
+@keyframes change_waitdot_color {
+    0%{background-color: aliceblue;}
+    50%{background-color:aqua;}
+    100%{background-color: aliceblue;}
+}

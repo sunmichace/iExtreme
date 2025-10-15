@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>iExtreme Predict</title>
+        <meta charset="UTF-8">
+        <script src="js/jquery-3.7.0.min.js"></script>
+        <link rel="stylesheet" href="css/iExtreme.css">
+    </head>
+    <body>
+        <div class="contain" id="contain" style="min-height:100vh;">
+            <div class="head" id="head">
+                <div id="logo"></div>
+            </div>
+            <div class="body" id="body"> 
+                <h1 id="model_name">iExtreme</h1>
+                <div id="input_frame">
+                    <label for="" style="margin: 5px;font-size: 18px; font-family: 'Times New Roman', Times, serif;">Upload genome fasta file (size within 10M)</label><br>
+                    <div id="input">
+                        <form id="file-upload-form" onsubmit="upload_file_event(event);" action="" method="">
+                            <input id="file-input" type="file" value="Upload">
+                            <input style="display:none" id="file-upload" type="submit">
+                        </form>
+                    </div>
+                    <div id="btn-contain">
+                        <input type="button" id="btn-upload" value="Upload" style="text-align: center; margin:5px;border-radius:16px;padding: 5px;padding-left: 15px;padding-right: 15px;color:white;font-size: 18px;background-color:cornflowerblue;"/>
+                        <input type="button" id="btn-pred"  value="Predict" style="display:none;text-align: center; margin:5px;border-radius:16px;padding: 5px;padding-left: 15px;padding-right: 15px;color:white;font-size: 18px;background-color:cornflowerblue;"/>
+                    </div>
+                </div>
+                <div class="wait-block" style="display:none; margin-top: 15px; width: 50px; height: 50px; background-color: rgb(46, 233, 2);"></div>
+                <p id="wait-mes" style="display:none; font-size: 28px;font-family: 'Times New Roman', Times, serif;">wait</p>
+                <p id="upload-results" style="display:none">
+                    Upload sucess
+                </p>
+                <p id="tips-text"  style="font-size: 28px;display:block;color: tomato;"></p>   
+                <p id="pred-results" style="font-family: 'Times New Roman', Times, serif;display:none;font-size: 32px;">
+                    <span>Prediction score:</span><br>
+                    <span style="font-size: 24px;font-family: 'Times New Roman', Times, serif;">Thermophilic (>70℃) = <span id="T-score"></span></span><br>
+                    <span style="font-size: 24px;font-family: 'Times New Roman', Times, serif;">Halophilic (>15%) =  <span id="S-score"></span></span><br>
+                    <span style="font-size: 24px;font-family: 'Times New Roman', Times, serif;">Acidophilic (pH<5) = <span id="pH-score"></span></span>
+                    <!-- <ul style="padding: 0px;margin:0px">
+                        <li style="font-size: 24px;font-family: 'Times New Roman', Times, serif;">Thermophilic (>70℃) = <span id="T-score"></span></li>
+                        <li style="font-size: 24px;font-family: 'Times New Roman', Times, serif;">Halophilic (>15%) =  <span id="S-score"></span></li>
+                        <li style="font-size: 24px;font-family: 'Times New Roman', Times, serif;">Acidophilic (pH<5) = <span id="pH-score"></span></li>
+                    </ul> -->
+                </p>  
+                <p id="user-hash" value="" style="display:none"></p>
+            </div>
+            <div id="vision-frame" style="display: none;text-align: center;" >
+                <!-- <div style="width:500px; height:500px;background-color:white;" class="esunburst" id="sunburst-frame"></div> -->
+                <!-- <div style="width:95vw; height:800px;background-color:white;" class="leida" id="leida-frame"></div> -->
+                <div style="width:800px; height:500px;background-color:white;" class="TSpH" id="TSpH-frame"></div>
+                <!-- <div class="download-result" style="margin:0px;padding:0px;display: flex;align-items:center;justify-content:center;">
+                    <a id="VF-result" href="">Download Results</a>
+                </div> -->
+            </div>
+            
+            <!-- <div class="foot" id="foot" style="height:120vh;"> 
+		        <p>粤ICP<a href="https://beian.miit.gov.cn/#/Integrated/index">备2022094195号</a> 态创生物科技（广州）有限公司</p>
+            </div> -->
+        </div>
+        <!-- position:absolute;top:120vh;  -->
+        <div class="foot" id="foot" style="margin-top:50px;"> 
+            <p>粤ICP<a style="color:aquamarine;" href="https://beian.miit.gov.cn/#/Integrated/index">备2022094195号</a> 态创生物科技（广州）有限公司</p>
+        </div>
+    </body>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/TSpH.js"></script>
+    <script src="js/iExtreme.js"></script>
+    
+</html>
+
