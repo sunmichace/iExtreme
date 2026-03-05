@@ -1,0 +1,2 @@
+# 排除本地conda环境（容器内会重新创建，不用带） /home/test/miniconda3/envs/fastani_prodigal/  # 排除Python缓存文件 __pycache__/ *.pyc *.pyo *.pyd  # 排除日志和临时文件 logs/ tmp/ *.log  # 排除IDE配置（比如VSCode、PyCharm） .vscode/ .idea/  # 排除压缩包和备份文件 *.zip *.tar.gz *.bak
+
