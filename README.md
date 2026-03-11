@@ -1,113 +1,204 @@
-iExtreme - 极端微生物生存条件预测工具
-项目概述
-iExtreme 是一款基于机器学习（CodonSVM + TSpH 模型）的极端微生物生存条件预测工具，支持上传 FASTA 格式文件，自动完成基因预测、特征提取、模型推理，最终输出微生物的最适温度、最适盐度、最适 pH 值，以及热 / 盐 /pH 耐受性模型的预测结果（其中温度模型返回 label1+label2 的概率和）。
-核心功能
-支持上传 FASTA/fa/faa/fna 格式文件（最大 10MB）
-基于 Prodigal 完成基因预测（CDS / 蛋白质序列生成）
-CodonSVM 模型预测：exheat（热耐受）、exsalt（盐耐受）、expH（pH 耐受）
-特殊处理：exheat 模型返回 label1+label2 的概率和（非固定 label2）
-exsalt/expH 模型保持固定 label=1
-TSpH 模型预测最适温度、盐度、pH 值，及对应的差异分析数据
-自动清理临时文件，保证服务器存储整洁
-环境依赖
-1. 必备软件
-Prodigal（基因预测工具）：用于从 FASTA 文件提取 CDS 和蛋白质序列
-bash
-运行
-# 通过conda安装（推荐）
+# iExtreme
+
+iExtreme is a machine-learning-based prediction tool for microbial survival conditions in extreme environments. It accepts FASTA files, performs gene prediction and feature extraction automatically, and returns predicted optimal temperature, salinity, and pH together with extremophile classification scores.
+
+## Overview
+
+The application combines two model groups:
+
+- `CodonSVM` models for extremophile classification:
+  - `exheat`: heat tolerance
+  - `exsalt`: salt tolerance
+  - `expH`: pH tolerance
+- `TSpH` regression models for:
+  - optimal temperature
+  - optimal salinity
+  - optimal pH
+
+For `exheat`, the returned `label` is the sum of the probabilities for `label_1` and `label_2`. For `exsalt` and `expH`, the service keeps `label = 1` and still returns the full probability distribution.
+
+## Features
+
+- Upload `fasta`, `fa`, `faa`, or `fna` files up to 10 MB
+- Run Prodigal automatically for CDS and protein prediction
+- Generate codon-based and protein dimer features
+- Predict `exheat`, `exsalt`, and `expH` model outputs
+- Estimate optimal temperature, salinity, and pH
+- Return differential curve data for downstream visualization
+- Remove temporary files after processing
+
+## Workflow
+
+1. Upload a FASTA file through the web interface or API.
+2. Run Prodigal to generate CDS and protein sequences.
+3. Build CodonSVM input features from predicted CDS sequences.
+4. Run CodonSVM classification models.
+5. Build TSpH input features from predicted protein sequences.
+6. Run TSpH regression models and load differential curve data.
+7. Return a combined JSON response.
+
+## Requirements
+
+### System dependency
+
+`Prodigal` must be installed and available on `PATH`.
+
+Recommended installation:
+
+```bash
 conda install -c bioconda prodigal
-2. Python 依赖包
-创建requirements.txt文件，内容如下：
-txt
-pandas>=1.5.0
-numpy>=1.21.0
-scikit-learn>=1.0.0
-biopython>=1.79
-flask>=2.0.0
-joblib>=1.1.0
-multiprocessing>=2.6.0.1
-uuid>=1.30
-tempfile>=0.1.0
-re>=2.2.1
-subprocess32>=3.5.4  # Windows系统可省略
-安装依赖：
-bash
-运行
-pip install -r requirements.txt
-项目结构
-plaintext
+```
+
+### Python environment
+
+The repository already includes an [`environment.yml`](environment.yml) file. Creating the Conda environment from that file is the most reliable setup path:
+
+```bash
+conda env create -f environment.yml
+conda activate fastani_prodigal
+```
+
+If you prefer a manual installation, the application code depends on:
+
+- `flask`
+- `biopython`
+- `numpy`
+- `pandas`
+- `scikit-learn`
+- `joblib`
+
+## Project Layout
+
+```text
 iExtreme/
-├── app_all.py               # 主程序（Flask后端）
-├── static/              # 静态资源目录（存放echarts.min.js等）
-├── templates/           # 前端页面目录（存放all.html）
-├── optimal/             # 模型目录（存放CodonSVM和TSpH模型文件）
-│   ├── exheat.pickle    # 热耐受模型
-│   ├── exsalt.pickle    # 盐耐受模型
-│   ├── expH.pickle      # pH耐受模型
-│   ├── train_temp.pkl   # TSpH温度预测模型
-│   ├── train_salt.pkl   # TSpH盐度预测模型
-│   ├── train_pH.pkl     # TSpH pH预测模型
-│   └── 对应模型的.f特征文件
-├── data/                # 差异数据目录
-│   ├── my_pred_train_df_temp.csv.diff  # 温度差异数据
-│   ├── my_pred_train_df_salt.csv.diff  # 盐度差异数据
-│   └── my_pred_train_df_pH.csv.diff    # pH差异数据
-├── feat.txt             # CodonSVM特征文件（6联密码子特征）
-└── README.md            # 项目说明文档
-快速开始
-1. 准备工作
-将训练好的模型文件（.pickle/.pkl/.f）放入optimal目录
-将差异数据文件放入data目录
-确保feat.txt特征文件存在且格式正确（每行一个 6 联密码子特征）
-2. 启动服务
-# 运行主程序
+├── app_all.py                    # Flask backend
+├── data/                         # Differential curve data
+│   ├── my_pred_train_df_temp.csv.diff
+│   ├── my_pred_train_df_salt.csv.diff
+│   └── my_pred_train_df_pH.csv.diff
+├── feat.txt                      # CodonSVM feature list
+├── optimal/                      # Model artifacts
+│   ├── exheat.pickle
+│   ├── exsalt.pickle
+│   ├── expH.pickle
+│   ├── train_temp.pkl
+│   ├── train_temp.f
+│   ├── train_salt.pkl
+│   ├── train_salt.f
+│   ├── train_pH.pkl
+│   └── train_pH.f
+├── static/                       # Static frontend assets
+├── templates/
+│   └── all.html                  # Web UI
+├── Dockerfile
+├── environment.yml
+└── README.md
+```
+
+## Quick Start
+
+### 1. Prepare model files
+
+Make sure the following resources are present:
+
+- CodonSVM model files in [`optimal/`](optimal/)
+- TSpH model files and matching `.f` feature files in [`optimal/`](optimal/)
+- Differential data files in [`data/`](data/)
+- Codon feature definition in [`feat.txt`](feat.txt)
+
+### 2. Start the service
+
+```bash
 python app_all.py
-服务启动后，默认监听：http://0.0.0.0:9070
-3. 使用流程
-打开浏览器访问 http://localhost:9070
-点击「Select File」上传 FASTA 格式文件（最大 10MB）
-点击「Start Prediction」开始预测
-等待预测完成后，查看：
-最适温度 / 盐度 /pH 值
-三个模型的预测分数（exheat 为 label1+2 概率和）
-温度 / 盐度 /pH 的差异分析图表
-API 接口说明
-1. 文件上传接口
-路径：/upload
-请求方式：POST
-请求体：form-data 格式，包含file字段（上传的文件）
-返回格式（JSON）：
-json
-{
-  "status": "success",  // success/error
-  "filePath": "临时文件路径",
-  "filename": "原始文件名",
-  "size": "文件大小（如1.25MB）",
-  "msg": "错误信息（仅error时返回）"
-}
-2. 预测处理接口
-路径：/process_files
-请求方式：POST
-请求头：Content-Type: application/json
-请求体（JSON）：
-json
-{
-  "filePaths": ["上传返回的临时文件路径"]
-}
-返回格式（JSON）：
-json
+```
+
+The Flask server listens on:
+
+```text
+http://0.0.0.0:9070
+```
+
+For local access in a browser, use:
+
+```text
+http://localhost:9070
+```
+
+### 3. Run a prediction
+
+1. Open `http://localhost:9070`.
+2. Upload a FASTA file.
+3. Start the prediction task.
+4. Review:
+   - optimal temperature
+   - optimal salinity
+   - optimal pH
+   - `exheat`, `exsalt`, and `expH` outputs
+   - differential curve data
+
+## API
+
+### `POST /upload`
+
+Uploads one FASTA file.
+
+#### Request
+
+- Content type: `multipart/form-data`
+- Form field: `file`
+
+#### Response
+
+```json
 {
   "status": "success",
-  "task_id": "任务ID",
+  "filePath": "/tmp/iExtreme_xxx/file_20260311123000_ab12cd34_example.fasta",
+  "filename": "example.fasta",
+  "size": "1.25MB"
+}
+```
+
+Error responses use:
+
+```json
+{
+  "status": "error",
+  "msg": "error message"
+}
+```
+
+### `POST /process_files`
+
+Runs the complete prediction pipeline for one or more uploaded files.
+
+#### Request
+
+- Content type: `application/json`
+
+```json
+{
+  "filePaths": [
+    "/tmp/iExtreme_xxx/file_20260311123000_ab12cd34_example.fasta"
+  ]
+}
+```
+
+#### Response
+
+```json
+{
+  "status": "success",
+  "task_id": "task_20260311123500_ef56gh78",
   "file_results": [
     {
-      "filename": "文件名",
-      "size": "文件大小",
+      "filename": "file_20260311123000_ab12cd34_example.fasta",
+      "size": "1.25MB",
       "status": "success",
-      "sequence_count": 序列数量,
+      "sequence_count": 12,
+      "error": "",
       "models": {
         "exheat": {
-          "label": 0.85, 
+          "label": 0.85,
           "probabilities": {
             "proba_label_0": 0.1,
             "proba_label_1": 0.4,
@@ -116,52 +207,79 @@ json
         },
         "exsalt": {
           "label": 1,
-          "probabilities": {...}
+          "probabilities": {
+            "proba_label_0": 0.2,
+            "proba_label_1": 0.8
+          }
         },
         "expH": {
           "label": 1,
-          "probabilities": {...}
+          "probabilities": {
+            "proba_label_0": 0.3,
+            "proba_label_1": 0.7
+          }
         }
       },
-      "temperature_opt": 55.2,  // 最适温度
-      "salinity_opt": 3.5,      // 最适盐度
-      "ph_opt": 7.2,            // 最适pH
-      "temp_x": "差异数据x",
-      "temp_y": "差异数据y",
-      "salinity_x": "差异数据x",
-      "salinity_y": "差异数据y",
-      "ph_x": "差异数据x",
-      "ph_y": "差异数据y"
+      "temperature_opt": 55.2,
+      "salinity_opt": 3.5,
+      "ph_opt": 7.2,
+      "temp_x": "comma-separated x values",
+      "temp_y": "comma-separated y values",
+      "salinity_x": "comma-separated x values",
+      "salinity_y": "comma-separated y values",
+      "ph_x": "comma-separated x values",
+      "ph_y": "comma-separated y values"
     }
   ],
-  "warnings": []  // 警告信息列表
+  "warnings": []
 }
-关键配置说明
-表格
-配置项	说明	默认值
-MAX_CONTENT_LENGTH	上传文件大小限制	10MB
-ALLOWED_EXTENSIONS	支持的文件格式	fasta/fa/faa/fna
-MODEL_DIR	模型文件目录	./optimal
-DATA_DIR	差异数据目录	./data
-UPLOAD_FOLDER	临时文件存储目录（自动生成）	tempfile.mkdtemp(prefix='iExtreme_')
-服务端口	Flask 运行端口	9070
-注意事项
-模型文件要求：
-CodonSVM 模型为 pickle 格式，需包含mean/var/model字段
-TSpH 模型为 joblib 格式，需配套.f特征文件（包含 mean/std/features）
-临时文件：预测完成后会自动删除临时目录和上传文件，无需手动清理
-编码问题：特征文件 / CSV 文件建议使用utf-8-sig编码，避免中文 / BOM 头问题
-并发处理：服务启用threaded=True支持多线程，可根据服务器配置调整
-兼容性：Prodigal 在 Windows 系统下可能需要手动配置环境变量
-常见问题
-Q1: 提示「Prodigal 未安装」
-A1: 确保通过 conda 安装 Prodigal，且已加入系统环境变量，可在终端执行prodigal -h验证。
-Q2: 温度模型仍返回 label2
-A2: 检查process_files函数中exheat模型的处理逻辑，确保：
-已删除adjusted_label = 2硬编码
-正确计算sum_label_1_2 = pred_proba[1] + pred_proba[2]
-前端已修改为读取exheat.label而非proba_label_2
-Q3: 模型加载失败
-A3: 检查模型文件路径是否正确，模型文件是否完整，pickle/joblib 版本是否兼容。
-许可证
-本项目仅供学术研究使用，如需商用请联系开发者。
+```
+
+## Configuration
+
+The main runtime settings are defined in [`app_all.py`](app_all.py):
+
+| Setting | Description | Value |
+| --- | --- | --- |
+| `MAX_CONTENT_LENGTH` | Maximum upload size | `10 * 1024 * 1024` |
+| `ALLOWED_EXTENSIONS` | Supported upload formats | `fasta`, `fa`, `faa`, `fna` |
+| `MODEL_DIR` | Model directory | `./optimal` |
+| `DATA_DIR` | Differential data directory | `./data` |
+| `UPLOAD_FOLDER` | Temporary upload directory | `tempfile.mkdtemp(prefix='iExtreme_')` |
+| `host` | Flask bind address | `0.0.0.0` |
+| `port` | Flask service port | `9070` |
+
+## Notes
+
+- CodonSVM model files are expected to contain `mean`, `var`, and `model`.
+- TSpH models are loaded from `.pkl` files and require matching `.f` feature files.
+- Temporary upload data and per-task working directories are deleted after processing.
+- UTF-8 or UTF-8 with BOM is recommended for feature and CSV files.
+- The Flask server runs with `threaded=True`.
+- On Windows, Prodigal may require manual environment variable setup.
+
+## Troubleshooting
+
+### Prodigal is not installed
+
+Install Prodigal and confirm it is available:
+
+```bash
+prodigal -h
+```
+
+### Model loading fails
+
+Check:
+
+- model file paths
+- file completeness
+- compatibility between saved model versions and installed library versions
+
+### `exheat` output does not match expectation
+
+The service logic returns the sum of `proba_label_1` and `proba_label_2` as the `exheat.label` field. The raw probability distribution remains available in the response payload.
+
+## License
+
+This project is intended for academic research use. Contact the developer for commercial use.
